@@ -6,7 +6,7 @@ void setup(){
 
 
 //WiFi initialisation + LED indication
-
+init_wifi();
 //nRF Initialisation + LED indication
 
 //WiFi connection check + LEDs

@@ -5,6 +5,8 @@ MPU9250 IMU(Wire,0x68);
 int status;
 const int weight=10;
 float temp_X[2][100];
+float temp_Y[2][100];
+String enc_val;
 
 char ssid[] = "HelloCar";
 char pass[] = "99eleven";
@@ -19,6 +21,8 @@ void setup()
   {
     temp_X[0][i]=0;
     temp_X[1][i]=0;
+    temp_Y[0][i]=0;
+    temp_Y[1][i]=0;
   }
   
   while(!Serial) {} 
@@ -54,6 +58,7 @@ void loop()
   int i;
   if(!client.connected()) client.connect(server, 80);
   float value_x=0;
+  float value_y=0;
   
   IMU.readSensor();
   
@@ -61,11 +66,22 @@ void loop()
   {
     temp_X[0][i+1]=temp_X[0][i];
     temp_X[1][i+1]=temp_X[1][i];
+    temp_Y[0][i+1]=temp_Y[0][i];
+    temp_Y[1][i+1]=temp_Y[1][i];
   }
   temp_X[0][0]=IMU.getAccelX_mss();
   temp_X[1][0]=IMU.getGyroX_rads();
-  for( i=0;i<weight;i++) value_x+=0.7*temp_X[0][i]+0.3*temp_X[1][i];
+  temp_Y[0][0]=IMU.getAccelY_mss();
+  temp_Y[1][0]=IMU.getGyroY_rads();
+  for( i=0;i<weight;i++) 
+  {
+    value_x+=0.7*temp_X[0][i]+0.3*temp_X[1][i];
+    value_y+=0.7*temp_Y[0][i]+0.3*temp_Y[1][i];
+  }
   value_x/=weight;
+  value_y/=weight;
+
+  enc_val=(String)value_x+' '+(String)value_y;
   Serial.print(value_x);
   Serial.println();
   client.println(enc_val);
